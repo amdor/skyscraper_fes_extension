@@ -14,10 +14,12 @@
 
     let getValueButtonClicked = (event) => {
         const carRef = $(event.target).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
+        const data = { "carUrls": [carRef] };
         const value = $.ajax({
                 url: 'https://localhost:5000',
                 method: 'POST',
-                data: { carUrls: carRef }
+                contentType: "application/json;",
+                data: JSON.stringify(data)
         }).done(function( data ) {
           console.log(JSON.stringify(data));
         });
