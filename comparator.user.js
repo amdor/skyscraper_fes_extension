@@ -16,21 +16,24 @@
     const GET_VALUE_BUTTON = $(`<i class="fa fa-magic fa-2x" style="float: right; margin-top: 15px;
                             background-color: orange; border-radius: 18px; border: 7px;
                             border-color: orange; border-style: solid; cursor: pointer;" aria-hidden="true"></i>`);
+    const COMPARE_BUTTON = `<li class="inaktiv">
+                                <a rel="nofollow" target="_blank" href="http://localhost:3000"><strong>Összehasonlítás</strong></a>
+                            </li>`
 
     let lastClickedButton;
 
     let getValueButtonClicked = (event) => {
-        const carRef = $(event.target).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
-        const data = { "carUrls": [carRef] };
         lastClickedButton = event.target;
+        const carRef = $(lastClickedButton).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
+        const data = { "carUrls": [carRef] };
         const value = $.ajax({
                 url: 'https://localhost:5000',
                 method: 'POST',
                 contentType: "application/json;",
                 data: JSON.stringify(data)
-        }).done(function( data ) {
-          if(lastClickedButton && data && data[0].worth) {
-            const worthElement = "<div style='float: right; margin-top: 15px; font-weight: bold;'>ÉRTÉK: " + data[0].worth + "</div>";
+        }).done(function( response ) {
+          if(lastClickedButton && response && response[0].worth) {
+            const worthElement = "<div style='float: right; margin-top: 15px; font-weight: bold;'>ÉRTÉK: " + response[0].worth + "</div>";
             replaceElement($('.fa-spinner')[0], worthElement);
           }
         });
@@ -44,7 +47,10 @@
 
     //ready
     $(() => {
-        $('.talalati_lista_vetelar').after(GET_VALUE_BUTTON);
+        if(document.URL.match(/https:\/\/(www|new){1}.hasznaltauto.hu\/talalatilista\/auto.*/g)) {
+            $('.talalati_lista_vetelar').after(GET_VALUE_BUTTON);
+            $('.tabmenu').children().last().after(COMPARE_BUTTON);
+        }        
     });
 
     //DOM manipulation utilities
