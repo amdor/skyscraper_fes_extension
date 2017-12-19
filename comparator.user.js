@@ -12,12 +12,13 @@
 
 (function() {
     'use strict';
+    let urlList = [];
     const SPINNER = `<i class="fa fa-spinner fa-spin fa-2x fa-fw" style="float: right; margin-top: 15px;"></i>`;
     const GET_VALUE_BUTTON = $(`<i class="fa fa-magic fa-2x" style="float: right; margin-top: 15px;
                             background-color: orange; border-radius: 18px; border: 7px;
                             border-color: orange; border-style: solid; cursor: pointer;" aria-hidden="true"></i>`);
     const COMPARE_BUTTON = `<li class="inaktiv">
-                                <a rel="nofollow" target="_blank" href="http://localhost:3000"><strong>Összehasonlítás</strong></a>
+                                <a rel="nofollow" target="_blank" href="http://localhost:3000"><strong>Összehasonlítás(<span class="compare-number"></span>)</strong></a>
                             </li>`
 
     let lastClickedButton;
@@ -26,6 +27,7 @@
         lastClickedButton = event.target;
         const carRef = $(lastClickedButton).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
         const data = { "carUrls": [carRef] };
+        refreshUrlList(carRef);
         const value = $.ajax({
                 url: 'https://localhost:5000',
                 method: 'POST',
@@ -39,6 +41,11 @@
         });
         replaceElement(lastClickedButton, SPINNER);
     };
+    
+    function refreshUrlList(ref) {
+        urlList.push(ref);
+        $('.compare-number').html(urlList.length);
+    }
 
     GET_VALUE_BUTTON.click(getValueButtonClicked);
 
