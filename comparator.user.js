@@ -7,7 +7,9 @@
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @match        https://www.hasznaltauto.hu/talalatilista/auto/*
 // @match        https://new.hasznaltauto.hu/talalatilista/auto/*
-// @grant        none
+// @match        localhost:3000
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 
 (function() {
@@ -19,13 +21,13 @@
                                     border-radius: 18px; border: 7px; border-color: orange; border-style: solid; cursor: pointer;" aria-hidden="true">
                                     </i>
                                 </div>`);
-    const COMPARE_BUTTON = `<li class="inaktiv">
+    const COMPARE_BUTTON = $(`<li class="inaktiv">
                                 <a rel="nofollow" target="_blank"
                                     href="http://localhost:3000"
                                     id="compareButton">
                                     <strong>Összehasonlítás(<span class="compare-number">0</span>)</strong>
                                 </a>
-                            </li>`;
+                            </li>`);
     const ADD_FOR_COMPARE_BUTTON = $(`<input type="button" style="float: right; margin-top: 15px; margin-right: 5px; background-color: #f0f0f0;
                                         border: 1px solid #e6e6e6;
                                         padding: 3px 10px;
@@ -60,23 +62,27 @@
     };
     
     let saveCarRefs = (event) => {
-        localStorage.setItem('carUrls', urlList);
+        GM_setValue('carUrls', urlList);
     };
 
     //BIND EVENTS
     GET_VALUE_BUTTON.click(getValueButtonClicked);
     ADD_FOR_COMPARE_BUTTON.click(addForCompareClicked);
-    $("#compareButton").click(saveCarRefs);
+    COMPARE_BUTTON.click(saveCarRefs);
 
     //add bootstrap to head
     $('head').append('<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">');
 
-    //ready
+    ///////////
+    ///READY///
+    ///////////
     $(() => {
         if(document.URL.match(/https:\/\/(www|new){1}.hasznaltauto.hu\/talalatilista\/auto.*/g)) {
             const buttons = $('<div></div>').append(GET_VALUE_BUTTON).append(ADD_FOR_COMPARE_BUTTON);
             $('.talalati_lista_vetelar').after(buttons);
             $('.tabmenu').children().last().after(COMPARE_BUTTON);
+        } else {
+            urlList = GM_getValue('carUrls', []);
         }
     });
 
