@@ -62,7 +62,7 @@
     };
     
     let saveCarRefs = (event) => {
-        GM_setValue('carUrls', urlList);
+        GM_setValue('carUrls', JSON.stringify(urlList));
     };
 
     //BIND EVENTS
@@ -82,7 +82,7 @@
             $('.talalati_lista_vetelar').after(buttons);
             $('.tabmenu').children().last().after(COMPARE_BUTTON);
         } else {
-            urlList = GM_getValue('carUrls', []);
+            localStorage.setItem('carUrls', GM_getValue('carUrls', []));
         }
     });
 
