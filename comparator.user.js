@@ -57,8 +57,9 @@
     };
 
     let addForCompareClicked = (event) => {
-        const carRef = $(event.target).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
+        const carRef = getUrlForButton(event.target);
         refreshUrlList(carRef);
+        sessionStorage.setItem('carUrls', JSON.stringify(urlList));
     };
     
     let saveCarRefs = (event) => {
@@ -78,11 +79,16 @@
     ///////////
     $(() => {
         if(document.URL.match(/https:\/\/(www|new){1}.hasznaltauto.hu\/talalatilista\/auto.*/g)) {
+            urlList = JSON.parse(sessionStorage.getItem('carUrls')) || [];
+            GM_setValue('carUrls', '');
             const buttons = $('<div></div>').append(GET_VALUE_BUTTON).append(ADD_FOR_COMPARE_BUTTON);
             $('.talalati_lista_vetelar').after(buttons);
             $('.tabmenu').children().last().after(COMPARE_BUTTON);
         } else {
-            localStorage.setItem('carUrls', GM_getValue('carUrls', []));
+            const carUrls = GM_getValue('carUrls', []);
+            if(carUrls != false) {
+                localStorage.setItem('carUrls', carUrls);
+            }
         }
     });
 
@@ -92,12 +98,11 @@
 
     //Replaces the element with new element. Uses the previousElementSibling attribute, so element must have it
     function replaceElement(element, newElement) {
-        if(!element.previousElementSibling) {
+        if(!element) {
             console.error("Invalid replacement called in comparator addon!");
             return;
         }
-        $(element.previousElementSibling).after(newElement);
-        $(element).remove();
+        $(element).replaceWith(newElement);
     }
 
     function refreshUrlList(ref) {
