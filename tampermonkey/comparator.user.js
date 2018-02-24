@@ -7,14 +7,13 @@
 // @require      https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js
 // @match        https://www.hasznaltauto.hu/talalatilista/auto/*
 // @match        https://new.hasznaltauto.hu/talalatilista/auto/*
-// @match        localhost:3000
+// @match        localhost:4200
 // @grant        GM_getValue
 // @grant        GM_setValue
 // ==/UserScript==
 
 (function() {
     'use strict';
-    let urlList = [];
     let lastClickedGetValueButton;
 
     ///////////
@@ -22,15 +21,15 @@
     ///////////
     $(() => {
         if(document.URL.match(/https:\/\/(www|new){1}.hasznaltauto.hu\/talalatilista\/auto.*/g)) {
-            urlList = JSON.parse(sessionStorage.getItem('carUrls')) || [];
-            GM_setValue('carUrls', '');
+            GM_setValue('htmls', '');
+            sessionStorage.setItem('htmls', '[]');
             const buttons = $('<div></div>').append(GET_VALUE_BUTTON).append(ADD_FOR_COMPARE_BUTTON);
             $('.talalati_lista_vetelar').after(buttons);
             $('.tabmenu').children().last().after(COMPARE_BUTTON);
         } else {
-            const carUrls = GM_getValue('carUrls', []);
-            if(carUrls != false) {
-                localStorage.setItem('carUrls', carUrls);
+            const htmls = GM_getValue('htmls', '[]');
+            if(htmls != false) {
+                localStorage.setItem('htmls', htmls);
             }
         }
     });
@@ -43,7 +42,7 @@ const GET_VALUE_BUTTON = $(`<div style="float: right; margin-top: 8px;">
                             </div>`);
 const COMPARE_BUTTON = $(`<li class="inaktiv">
                             <a rel="nofollow" target="_blank"
-                                href="http://localhost:3000"
+                                href="http://localhost:4200"
                                 id="compareButton">
                                 <strong>Összehasonlítás(<span class="compare-number">0</span>)</strong>
                             </a>
@@ -56,6 +55,19 @@ const ADD_FOR_COMPARE_BUTTON = $(`<input type="button" style="float: right; marg
                                     color: #0464a4;
                                     cursor: pointer;" value="Összehasonlít">`);
 ////START EVENT_HANDLERS.JS
+//EVENT HANDLERS' UTILS
+function refreshHtmls(htmlDictItem) {
+	let htmls = JSON.parse(sessionStorage.getItem('htmls'));
+	const index = htmls.findIndex(element => Object.keys(element)[0] === Object.keys(htmlDictItem)[0]);
+	if(index === -1){
+	  	htmls.push(htmlDictItem);
+	} else {
+	  	htmls.splice(index, index + 1);
+	}
+	sessionStorage.setItem('htmls', JSON.stringify(htmls));
+	return htmls.length;
+}
+
 
 //EVENT HANDLERS
 function getValueButtonClicked(event) {
@@ -64,7 +76,9 @@ function getValueButtonClicked(event) {
 		$.ajax({
 			url: carRef,
 			success: (htmlContent) => {
-				const data = { "carUrls": [carRef], 'html': htmlContent };
+				const htmlMap = {};
+				htmlMap[carRef] = htmlContent;
+				const data = { "carUrls": [carRef], 'htmls': htmlMap };
 				$.ajax({
 						url: 'https://localhost:5000',
 						method: 'POST',
@@ -90,18 +104,23 @@ function getValueButtonClicked(event) {
 
 function addForCompareClicked(event) {
 		const carRef = getUrlForButton(event.target);
-		//switch color and background color
-		const backgroundColor = $(event.target).css('background-color');
-		const color = $(event.target).css('color');
-		$(event.target).css('background-color', color);
-		$(event.target).css('color', backgroundColor);
-
-		refreshUrlList(carRef);
-		sessionStorage.setItem('carUrls', JSON.stringify(urlList));
+		$.ajax({
+			url: carRef,
+			success: (htmlContent) => {
+				const htmlMap = {};
+				htmlMap[carRef] = htmlContent;
+				const count = refreshHtmls(htmlMap);
+				refreshToCompareCounter(count);
+			},
+			error: () => {
+				toggleAddToCompareColor();
+			}
+		});
+		toggleAddToCompareColor();
 }
 
 function saveCarRefs (event) {
-		GM_setValue('carUrls', JSON.stringify(urlList));
+		GM_setValue('htmls', sessionStorage.getItem('htmls'));
 }
 
 //BIND EVENTS
@@ -125,18 +144,20 @@ function replaceElement(element, newElement) {
     $(element).replaceWith(newElement);
 }
 
-function refreshUrlList(ref) {
-    if(!urlList.includes(ref)) {
-        urlList.push(ref);
-    } else {
-        const index = urlList.indexOf(ref);
-        urlList.splice(index, index + 1);
-    }
-    $('.compare-number').html(urlList.length);
-}
-
 function getUrlForButton(button) {
     return $(button).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
+}
+
+function refreshToCompareCounter(count) {
+      $('.compare-number').html(count);
+}
+
+function toggleAddToCompareColor() {
+  //switch color and background color
+  const backgroundColor = $(event.target).css('background-color');
+  const color = $(event.target).css('color');
+  $(event.target).css('background-color', color);
+  $(event.target).css('color', backgroundColor);
 }
 
 })();

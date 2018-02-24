@@ -6,7 +6,7 @@ const GET_VALUE_BUTTON = $(`<div style="float: right; margin-top: 8px;">
                             </div>`);
 const COMPARE_BUTTON = $(`<li class="inaktiv">
                             <a rel="nofollow" target="_blank"
-                                href="http://localhost:3000"
+                                href="http://localhost:4200"
                                 id="compareButton">
                                 <strong>Összehasonlítás(<span class="compare-number">0</span>)</strong>
                             </a>

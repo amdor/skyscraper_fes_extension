@@ -14,16 +14,18 @@ function replaceElement(element, newElement) {
     $(element).replaceWith(newElement);
 }
 
-function refreshUrlList(ref) {
-    if(!urlList.includes(ref)) {
-        urlList.push(ref);
-    } else {
-        const index = urlList.indexOf(ref);
-        urlList.splice(index, index + 1);
-    }
-    $('.compare-number').html(urlList.length);
-}
-
 function getUrlForButton(button) {
     return $(button).parentsUntil('.talalati_lista').prev().find('h2>a')[0].href;
+}
+
+function refreshToCompareCounter(count) {
+      $('.compare-number').html(count);
+}
+
+function toggleAddToCompareColor() {
+  //switch color and background color
+  const backgroundColor = $(event.target).css('background-color');
+  const color = $(event.target).css('color');
+  $(event.target).css('background-color', color);
+  $(event.target).css('color', backgroundColor);
 }
