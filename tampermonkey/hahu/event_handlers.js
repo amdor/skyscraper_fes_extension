@@ -23,7 +23,7 @@ function getValueButtonClicked(event) {
 				htmlMap[carRef] = htmlContent;
 				const data = { "carUrls": [carRef], 'htmls': htmlMap };
 				$.ajax({
-						url: 'https://localhost:5000',
+						url: 'https://skyscraper-bes.herokuapp.com',
 						method: 'POST',
 						contentType: "application/json;",
 						data: JSON.stringify(data),
