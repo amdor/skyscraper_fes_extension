@@ -22,12 +22,12 @@
     $(() => {
         if(document.URL.match(/https:\/\/(www|new){1}.hasznaltauto.hu\/talalatilista\/auto.*/g)) {
             GM_setValue('htmls', '');
-            sessionStorage.setItem('htmls', '[]');
+            sessionStorage.setItem('htmls', '{}');
             const buttons = $('<div></div>').append(GET_VALUE_BUTTON).append(ADD_FOR_COMPARE_BUTTON);
             $('.talalati_lista_vetelar').after(buttons);
             $('.tabmenu').children().last().after(COMPARE_BUTTON);
         } else {
-            const htmls = GM_getValue('htmls', '[]');
+            const htmls = GM_getValue('htmls', '{}');
             if(htmls != false) {
                 localStorage.setItem('htmls', htmls);
             }
@@ -58,11 +58,11 @@ const ADD_FOR_COMPARE_BUTTON = $(`<input type="button" style="float: right; marg
 //EVENT HANDLERS' UTILS
 function refreshHtmls(htmlDictItem) {
 	let htmls = JSON.parse(sessionStorage.getItem('htmls'));
-	const index = htmls.findIndex(element => Object.keys(element)[0] === Object.keys(htmlDictItem)[0]);
-	if(index === -1){
-	  	htmls.push(htmlDictItem);
+	const newKey = Object.keys(htmlDictItem)[0];
+	if(!Object.keys(htmls).includes(newKey)){
+		htmls[newKey] = htmlDictItem[newKey];
 	} else {
-	  	htmls.splice(index, index + 1);
+		delete htmls[newKey];
 	}
 	sessionStorage.setItem('htmls', JSON.stringify(htmls));
 	return htmls.length;
@@ -80,7 +80,7 @@ function getValueButtonClicked(event) {
 				htmlMap[carRef] = htmlContent;
 				const data = { "carUrls": [carRef], 'htmls': htmlMap };
 				$.ajax({
-						url: 'https://localhost:5000',
+						url: 'https://skyscraper-bes.herokuapp.com',
 						method: 'POST',
 						contentType: "application/json;",
 						data: JSON.stringify(data),

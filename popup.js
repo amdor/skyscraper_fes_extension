@@ -56,7 +56,7 @@ function addUrlsToList(urls) {
 	for(url of urls) {
 		const listItem = $('<li><i class="fa fa-minus fa-3x"></i> ' + url + '</li>');
 		$('#urlList').append(listItem);
-		listItem.click(() => {
+		listItem.find('i.fa-minus').click(() => {
 			listItem.remove();
 			chrome.storage.local.remove(url);
 		})
@@ -73,12 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		getCurrentTabUrl((url) => {
 			if(SKYSCRAPER_URLS.includes(url)) {
 				chrome.storage.local.get(null, (cars) => {
-					chrome.tabs.sendRequest(currentTab.id, {action: 'setCars', cars: cars}, (source) => {
-
-					});
+					chrome.tabs.sendMessage(currentTab.id, {action: 'setCars', cars: cars});
 				});
 			} else {
-				chrome.tabs.sendRequest(currentTab.id, {action: "getSource"}, (source) => {
+				chrome.tabs.sendMessage(currentTab.id, {action: "getSource"}, (source) => {
 					saveCar(url, source, (success) => {
 						if(success) {
 							addUrlsToList([url])

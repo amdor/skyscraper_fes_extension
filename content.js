@@ -1,16 +1,17 @@
 
-function setUrls(cars) {
-
+function setCars(cars) {
+	localStorage.setItem('htmls', JSON.stringify(cars))
 }
 
 
-chrome.extension.onRequest.addListener(function(request, sender, callback) {
+chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	switch (request.action) {
 		case 'getSource':
 			callback(document.getElementsByTagName('html')[0].innerHTML);
 			break;
 		case 'setCars':
-			setUrls(request.cars);
-			break;
+			setCars(request.cars);
+			// false closes the async callback channel
+			return false;
 	}
 });

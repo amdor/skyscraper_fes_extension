@@ -1,11 +1,11 @@
 //EVENT HANDLERS' UTILS
 function refreshHtmls(htmlDictItem) {
 	let htmls = JSON.parse(sessionStorage.getItem('htmls'));
-	const index = htmls.findIndex(element => Object.keys(element)[0] === Object.keys(htmlDictItem)[0]);
-	if(index === -1){
-	  	htmls.push(htmlDictItem);
+	const newKey = Object.keys(htmlDictItem)[0];
+	if(!Object.keys(htmls).includes(newKey)){
+		htmls[newKey] = htmlDictItem[newKey];
 	} else {
-	  	htmls.splice(index, index + 1);
+		delete htmls[newKey];
 	}
 	sessionStorage.setItem('htmls', JSON.stringify(htmls));
 	return htmls.length;
