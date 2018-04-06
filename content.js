@@ -1,6 +1,8 @@
 
 function setCars(cars) {
-	localStorage.setItem('htmls', JSON.stringify(cars))
+	const carsString = JSON.stringify(cars);
+	localStorage.setItem('htmls', carsString);
+    window.dispatchEvent( new StorageEvent('storage', {key: 'htmls', newValue: carsString, url: window.location}) );
 }
 
 
