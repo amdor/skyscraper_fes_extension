@@ -54,11 +54,11 @@ function saveCar(url, html, callback) {
 
 function addUrlsToList(urls) {
 	for(url of urls) {
-		const listItem = $('<li><i class="fa fa-minus fa-3x"></i> ' + url + '</li>');
+		const listItem = $('<li><i class="fa fa-minus fa-3x"></i>' + url + '</li>');
 		$('#urlList').append(listItem);
 		listItem.find('i.fa-minus').click(() => {
 			listItem.remove();
-			chrome.storage.local.remove(url);
+			chrome.storage.local.remove(listItem[0].innerText);
 		})
 	}
 }
